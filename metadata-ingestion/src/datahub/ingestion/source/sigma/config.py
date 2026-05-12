@@ -234,6 +234,16 @@ class SigmaSourceReport(StaleEntityRemovalSourceReport):
     chart_warehouse_table_name_unmatched: int = 0
     chart_warehouse_table_node_skipped: int = 0
     chart_warehouse_table_name_ambiguous: int = 0
+    # Column-name bridge: Sigma display name -> warehouse-native name.
+    chart_input_fields_warehouse_column_bridged: int = 0
+    # Warehouse upstream resolved but no native name found; fell back to display name.
+    chart_input_fields_warehouse_column_bridge_unresolved: int = 0
+    # Two warehouse upstreams on the same element exposed the same display name
+    # with different native names; first-written value is kept.
+    chart_input_fields_column_native_names_collision: int = 0
+    # Two DataModelElementUpstream entries on the same element share a display name
+    # mapping to different DM URNs; first-resolved value is kept.
+    chart_input_fields_dm_upstream_name_collision: int = 0
 
     # DM element emission / upstream resolution.
     data_model_elements_emitted: int = 0
@@ -360,6 +370,16 @@ class SigmaSourceReport(StaleEntityRemovalSourceReport):
     # FGL downstream fields dropped because the SQL column name had no matching
     # Sigma display column (formula ref absent or element name mismatch).
     dm_customsql_fgl_downstream_unmapped: int = 0
+    # Elements whose col mapping was populated (at least partially) via the
+    # columnId path rather than formula bracket refs alone.  Non-zero confirms
+    # the passthrough-column bridge is active.
+    dm_customsql_col_mapping_via_columnid: int = 0
+    # columnIds that could not be used as SQL column names (per-column encounter).
+    # Fired for bare non-UPPER_SNAKE identifiers, non-inode slash-shaped IDs, and
+    # inode entries with an empty native part.  Non-zero on Snowflake means the DM
+    # has composition-formula columns (expected); non-zero on other warehouses may
+    # indicate unrecognised columnId formats.  Falls back to formula-ref path.
+    dm_customsql_col_mapping_columnid_rejected: int = 0
 
     # Workbook customSQL chart SQL parsing counters (mirrors dm_customsql_* set).
     workbook_customsql_skipped: int = 0
